@@ -40,7 +40,7 @@ struct Ref {
 
 namespace config {
   // Enable to check that the tree is AVL balanced.
-  inline constexpr bool CHECK_DEPTH = false;
+  inline constexpr bool CHECK_DEPTH = true;
 
   // Disable if your implementation does not have parent pointers
   inline constexpr bool PARENT_POINTERS = true;
@@ -62,12 +62,13 @@ struct Node{
     delete right;
   }
 
-  Node(){
+  Node() = default;
+  /*{
     parent = nullptr;
     left = nullptr;
     right = nullptr;
     size = 0;
-  }
+  }*/
 };
 
 template < typename T >
@@ -291,7 +292,7 @@ bool Tree<T>::insert(T value) {
     }
   }
 
-  // bubble_up(newNode->parent, root);
+  bubble_up(newNode->parent, root);
 
   std::cout << "inserted " << value << "\n";
   return true;
