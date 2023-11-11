@@ -61,7 +61,7 @@ struct Tree {
       size_t size;
     
     ~ Node(){
-      // std::cout << "~ Node: " << value << "\n";
+      std::cout << "~ Node: " << value << "\n";
       delete left;
       delete right;
     }
@@ -96,7 +96,7 @@ struct Tree {
 
 
   ~ Tree(){
-    // std::cout << "deleting root\n";
+    std::cout << "deleting root\n";
     delete root;
   }
 
@@ -252,7 +252,7 @@ bool Tree<T>::insert(T value) {
     root = newNode;
     m_size ++;
 
-    // std::cout << "inserted " << value << "\n";
+    std::cout << "inserted " << value << "\n";
     return true;
 
   }else{
@@ -286,7 +286,7 @@ bool Tree<T>::insert(T value) {
 
   bubble_up(newNode->parent, root);
 
-  // std::cout << "inserted " << value << "\n";
+  std::cout << "inserted " << value << "\n";
   return true;
     
 }
