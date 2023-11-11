@@ -61,6 +61,13 @@ struct Node{
     delete left;
     delete right;
   }
+
+  Node(){
+    parent = nullptr;
+    left = nullptr;
+    right = nullptr;
+    size = 0;
+  }
 };
 
 template < typename T >
