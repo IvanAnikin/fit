@@ -94,7 +94,8 @@ struct Tree {
 
 
   ~ Tree(){
-    if(root != nullptr) delete root;
+    //if(root != nullptr) 
+    delete root;
   }
 
   Node<T> * root;
@@ -184,7 +185,6 @@ void rotate_right(Node<T> *& root, Node<T> * node){
 template <typename T>
 void bubble_up(Node<T> * node, Node<T> *& root){
   int prev_diff = 0;
-  // Node<T> * prev = nullptr;
   
   while(node != nullptr){
     size_t left_size = 0;
@@ -194,7 +194,6 @@ void bubble_up(Node<T> * node, Node<T> *& root){
     size_t max_size = std::max(left_size, right_size);
     int diff = right_size - left_size;
 
-    // if(DEBUG) std::cout << "diff: " << diff << " prev: " << prev_diff << " node: " << node->value << "\n";
     if(diff > 1){
 
       if(node->right != nullptr){
@@ -203,13 +202,11 @@ void bubble_up(Node<T> * node, Node<T> *& root){
         if(node->right->left != nullptr) n_left_size = node->right->left->size;
         if(node->right->right != nullptr) n_right_size = node->right->right->size;
         prev_diff = n_right_size - n_left_size;
-        // if(DEBUG) std::cout << "prev: " << prev_diff << " node: " << node->right->value << "\n";
+
         if(prev_diff < 0){
           rotate_right(root, node->right);
         }
-      }/*else if(prev_diff < 0 ){
-        rotate_right(root, prev);
-      }*/
+      }
 
       rotate_left(root, node);
       node = node->parent;
@@ -222,13 +219,11 @@ void bubble_up(Node<T> * node, Node<T> *& root){
         if(node->left->left != nullptr) n_left_size = node->left->left->size;
         if(node->left->right != nullptr) n_right_size = node->left->right->size;
         prev_diff = n_right_size - n_left_size;
-        // if(DEBUG) std::cout << "prev: " << prev_diff << " node: " << node->left->value << "\n";
+
         if(prev_diff > 0){
           rotate_left(root, node->left);
         }
-      }/*else if(prev_diff > 0){
-        rotate_left(root, prev);
-      }*/
+      }
       
       rotate_right(root, node);
       node = node->parent;
@@ -239,17 +234,13 @@ void bubble_up(Node<T> * node, Node<T> *& root){
       node->size = max_size + 1;
     }
 
-    // prev = node;
     node = node->parent;
-    // prev_diff = diff;
   }
 }
 
 
 template <typename T>
 bool Tree<T>::insert(T value) {
-
-  // if(DEBUG) std::cout << "inserting " << value << "\n";
 
   Node<T> * newNode = new Node<T>;
   newNode->value = value;
@@ -296,8 +287,6 @@ bool Tree<T>::insert(T value) {
 
   bubble_up(newNode->parent, root);
 
-  // if(DEBUG) show();
-
   return true;
     
 }
@@ -332,7 +321,6 @@ const T* Tree<T>::find(const T& value) const {
 template <typename T>
 bool Tree<T>::erase(const T& value) {
   
-  // if(DEBUG) std::cout << "erasing: " << value << "\n";
   Node<T> * node = root;
   Node<T> * parent = nullptr;
   bool left = false;
@@ -418,8 +406,6 @@ bool Tree<T>::erase(const T& value) {
 
       m_size --;
       
-      // if(DEBUG) show();
-      
       return true;
     }
   }
@@ -480,7 +466,8 @@ struct Tester {
   void erase(const T& x, bool check_tree_ = false) {
     bool succ_r = ref.erase(x);
     auto succ_t = tested.erase(x);
-    if (succ_r != succ_t) _throw("Erase mismatch", succ_r);
+    // if (succ_r != succ_t) _throw("Erase mismatch", succ_r);
+    if (succ_r != succ_t) throw TestFailed("Erase mismatch", succ_r);
     size();
     if (check_tree_) check_tree();
   }
@@ -560,7 +547,6 @@ void test_insert() {
   Tester<int> t;
 
   for (int i = 0; i < 10; i++) t.insert(i, true);
-  // if(DEBUG) for (int i = 0; i < 10; i++) t.insert(i, true);
   for (int i = -10; i < 20; i++) t.find(i);
 
   for (int i = 0; i < 10; i++) t.insert((1 + i * 7) % 17, true);
@@ -573,31 +559,15 @@ void test_erase() {
   for (int i = 0; i < 10; i++) t.insert((1 + i * 7) % 17, true);
   for (int i = -10; i < 20; i++) t.find(i);
 
-  // if(DEBUG) std::cout << "ERASE 1\n"; 
-
-  // if(DEBUG){
-  //   t.erase(8, true);
-  //   t.erase(6, true);
-  //   t.erase(5, true);
-  //   t.erase(12, true);
-  //   t.erase(9, true);
-  //   t.erase(1, true);
-  // }
-
   for (int i = 3; i < 22; i += 2) t.erase(i, true);
   for (int i = -10; i < 20; i++) t.find(i);
   
-  // if(DEBUG) std::cout << "ERASE 2\n";
-
   for (int i = 0; i < 10; i++) t.insert((1 + i * 13) % 17 - 8, true);
   for (int i = -10; i < 20; i++) t.find(i);
   
-  // if(DEBUG) std::cout << "ERASE 3\n";
-
   for (int i = -4; i < 10; i++) t.erase(i, true);
   for (int i = -10; i < 20; i++) t.find(i);
   
-  // if(DEBUG) std::cout << "ERASE 4\n";
 }
 
 enum RandomTestFlags : unsigned {
