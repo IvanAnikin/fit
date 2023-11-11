@@ -369,16 +369,9 @@ bool Tree<T>::erase(const T& value) {
         n_point->right = nullptr;
         n_point->parent = nullptr;
 
-        delete n_point;
+        // delete n_point;
 
         bubble_up(n_parent, root); 
-
-        // bubble_up(n_point->parent, root); 
-        // n_point->left = nullptr;
-        // n_point->right = nullptr;
-        // n_point->parent = nullptr;
-
-        // delete n_point;
 
       }
       else{  
@@ -398,7 +391,7 @@ bool Tree<T>::erase(const T& value) {
         node->right = nullptr;
         node->parent = nullptr;
 
-        delete node;
+        // delete node;
 
         bubble_up(parent, root); 
 
@@ -467,7 +460,7 @@ struct Tester {
     bool succ_r = ref.erase(x);
     auto succ_t = tested.erase(x);
     // if (succ_r != succ_t) _throw("Erase mismatch", succ_r);
-    if (succ_r != succ_t) throw TestFailed("Erase mismatch", succ_r);
+    if (succ_r != succ_t) throw TestFailed("Erase mismatch");
     size();
     if (check_tree_) check_tree();
   }
