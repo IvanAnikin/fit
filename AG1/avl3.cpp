@@ -251,7 +251,7 @@ bool Tree<T>::insert(T value) {
     root = newNode;
     m_size ++;
 
-    // std::cout << "inserted " << value << "\n";
+    std::cout << "inserted " << value << "\n";
     return true;
 
   }else{
@@ -278,6 +278,7 @@ bool Tree<T>::insert(T value) {
           break;
         }
       }else{
+        delete newNode;
         return false;
       }
     }
@@ -285,7 +286,7 @@ bool Tree<T>::insert(T value) {
 
   bubble_up(newNode->parent, root);
 
-  // std::cout << "inserted " << value << "\n";
+  std::cout << "inserted " << value << "\n";
   return true;
     
 }
