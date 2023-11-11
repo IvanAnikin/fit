@@ -46,26 +46,27 @@ namespace config {
   inline constexpr bool PARENT_POINTERS = true;
 }
 
+template < typename T >
+struct Node{
+
+  public:
+    Node * parent;
+    Node * left;
+    Node * right;
+    T value;
+    size_t size;
+  
+  ~ Node(){
+    if(left!=nullptr) delete(left);
+    if(right!=nullptr) delete(right);
+    left = nullptr;
+    right = nullptr;
+    // delete this;
+  }
+};
 
 template < typename T >
 struct Tree {
-
-  struct Node{
-
-    public:
-      Node * parent;
-      Node * left;
-      Node * right;
-      T value;
-      size_t size;
-    
-    ~ Node(){
-      if(left!=nullptr) delete(left);
-      if(right!=nullptr) delete(right);
-      left = nullptr;
-      right = nullptr;
-    }
-  };
 
   size_t size() const;
   const T* find(const T& value) const;
@@ -74,10 +75,10 @@ struct Tree {
 
   void show(){
     std::cout << "\n---\t---\t---\n";
-    std::vector<Node*> queue;
+    std::vector<Node<T>*> queue;
     queue.push_back(root);
     while(queue.size() > 0){
-      Node * node = queue.back();
+      Node<T> * node = queue.back();
       queue.pop_back();
       std::cout << " '" << node->value << "' {" << node->size << "}";
       if(node->left != nullptr){
@@ -97,7 +98,7 @@ struct Tree {
     if(root != nullptr) delete root;
   }
 
-  Node * root;
+  Node<T> * root;
   size_t m_size = 0;
 
   // Needed to test the structure of the tree.
@@ -106,12 +107,12 @@ struct Tree {
   // your attributes.
   struct TesterInterface {
     // using Node = ...
-    static const Node *root(const Tree *t) { return t->root; }
+    static const Node<T> *root(const Tree *t) { return t->root; }
     // Parent of root must be nullptr, ignore if config::PARENT_POINTERS == false
-    static const Node *parent(const Node *n) { return n->parent; }
-    static const Node *right(const Node *n) { return n->right; }
-    static const Node *left(const Node *n) { return n->left; }
-    static const T& value(const Node *n) { return n->value; }
+    static const Node<T> *parent(const Node<T> *n) { return n->parent; }
+    static const Node<T> *right(const Node<T> *n) { return n->right; }
+    static const Node<T> *left(const Node<T> *n) { return n->left; }
+    static const T& value(const Node<T> *n) { return n->value; }
   };
 };
 
@@ -123,9 +124,9 @@ size_t Tree<T>::size() const {
 
 
 template <typename T>
-void rotate_left(Node *& root, Tree::Node * node){ 
+void rotate_left(Node<T> *& root, Node<T> * node){ 
 
-  Tree::Node * prev = node->right;
+  Node<T> * prev = node->right;
 
   if(node == root) root = prev;
   if(node->parent != nullptr){
@@ -153,9 +154,9 @@ void rotate_left(Node *& root, Tree::Node * node){
 
 
 template <typename T>
-void rotate_right(Node *& root, Node * node){
+void rotate_right(Node<T> *& root, Node<T> * node){
 
-  Node * prev = node->left;
+  Node<T> * prev = node->left;
 
   if(node == root) root = prev;
   if(node->parent != nullptr){
@@ -182,8 +183,9 @@ void rotate_right(Node *& root, Node * node){
 }
 
 template <typename T>
-void bubble_up(Node * node, Node *& root){
+void bubble_up(Node<T> * node, Node<T> *& root){
   int prev_diff = 0;
+  // Node<T> * prev = nullptr;
   
   while(node != nullptr){
     size_t left_size = 0;
@@ -193,6 +195,7 @@ void bubble_up(Node * node, Node *& root){
     size_t max_size = std::max(left_size, right_size);
     int diff = right_size - left_size;
 
+    // if(DEBUG) std::cout << "diff: " << diff << " prev: " << prev_diff << " node: " << node->value << "\n";
     if(diff > 1){
 
       if(node->right != nullptr){
@@ -201,10 +204,13 @@ void bubble_up(Node * node, Node *& root){
         if(node->right->left != nullptr) n_left_size = node->right->left->size;
         if(node->right->right != nullptr) n_right_size = node->right->right->size;
         prev_diff = n_right_size - n_left_size;
+        // if(DEBUG) std::cout << "prev: " << prev_diff << " node: " << node->right->value << "\n";
         if(prev_diff < 0){
           rotate_right(root, node->right);
         }
-      }
+      }/*else if(prev_diff < 0 ){
+        rotate_right(root, prev);
+      }*/
 
       rotate_left(root, node);
       node = node->parent;
@@ -217,11 +223,13 @@ void bubble_up(Node * node, Node *& root){
         if(node->left->left != nullptr) n_left_size = node->left->left->size;
         if(node->left->right != nullptr) n_right_size = node->left->right->size;
         prev_diff = n_right_size - n_left_size;
-
+        // if(DEBUG) std::cout << "prev: " << prev_diff << " node: " << node->left->value << "\n";
         if(prev_diff > 0){
           rotate_left(root, node->left);
         }
-      }
+      }/*else if(prev_diff > 0){
+        rotate_left(root, prev);
+      }*/
       
       rotate_right(root, node);
       node = node->parent;
@@ -232,7 +240,9 @@ void bubble_up(Node * node, Node *& root){
       node->size = max_size + 1;
     }
 
+    // prev = node;
     node = node->parent;
+    // prev_diff = diff;
   }
 }
 
@@ -240,7 +250,9 @@ void bubble_up(Node * node, Node *& root){
 template <typename T>
 bool Tree<T>::insert(T value) {
 
-  Node * newNode = new Node;
+  // if(DEBUG) std::cout << "inserting " << value << "\n";
+
+  Node<T> * newNode = new Node<T>;
   newNode->value = value;
   newNode->left = nullptr;
   newNode->right = nullptr;
@@ -256,7 +268,7 @@ bool Tree<T>::insert(T value) {
 
   }else{
 
-    Node * node = root;
+    Node<T> * node = root;
     while(true){
 
       if(value < node->value){
@@ -294,7 +306,7 @@ bool Tree<T>::insert(T value) {
 template <typename T>
 const T* Tree<T>::find(const T& value) const {
     
-  Node * node = root;
+  Node<T> * node = root;
   while(true){
 
     if(value < node->value){
@@ -321,8 +333,9 @@ const T* Tree<T>::find(const T& value) const {
 template <typename T>
 bool Tree<T>::erase(const T& value) {
   
-  Node * node = root;
-  Node * parent = nullptr;
+  // if(DEBUG) std::cout << "erasing: " << value << "\n";
+  Node<T> * node = root;
+  Node<T> * parent = nullptr;
   bool left = false;
   while(true){
 
@@ -345,8 +358,8 @@ bool Tree<T>::erase(const T& value) {
     }else{
       
       if( node->left != nullptr && node->right != nullptr ){ 
-        Node* n_point = node->left;
-        Node* n_parent = node;
+        Node<T>* n_point = node->left;
+        Node<T>* n_parent = node;
         bool n_left = true;
         while (n_point->right != nullptr) {
             n_parent = n_point;
@@ -364,17 +377,25 @@ bool Tree<T>::erase(const T& value) {
         if (n_point->left != nullptr)
             n_point->left->parent = n_parent;
 
-        bubble_up(n_point->parent, root); 
 
         n_point->left = nullptr;
         n_point->right = nullptr;
         n_point->parent = nullptr;
 
         delete n_point;
-        
+
+        bubble_up(n_parent, root); 
+
+        // bubble_up(n_point->parent, root); 
+        // n_point->left = nullptr;
+        // n_point->right = nullptr;
+        // n_point->parent = nullptr;
+
+        // delete n_point;
+
       }
       else{  
-        Node * child = (node->left != nullptr) ? node->left : node->right;
+        Node<T>* child = (node->left != nullptr) ? node->left : node->right;
 
         if (left)
             if(parent) parent->left = child;
@@ -386,17 +407,20 @@ bool Tree<T>::erase(const T& value) {
         if (child != nullptr)
             child->parent = parent;
 
-        bubble_up(parent, root); 
-
         node->left = nullptr;
         node->right = nullptr;
         node->parent = nullptr;
 
         delete node;
+
+        bubble_up(parent, root); 
+
       }
 
       m_size --;
-            
+      
+      // if(DEBUG) show();
+      
       return true;
     }
   }
