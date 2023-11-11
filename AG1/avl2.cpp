@@ -57,10 +57,10 @@ struct Node{
     size_t size;
   
   ~ Node(){
-    // if(left!=nullptr) delete left;
-    // if(right!=nullptr) delete right;
-    // left = nullptr;
-    // right = nullptr;
+    delete left;
+    delete right;
+    left = nullptr;
+    right = nullptr;
   }
 };
 
@@ -94,8 +94,7 @@ struct Tree {
 
 
   ~ Tree(){
-    //if(root != nullptr) 
-    delete root;
+    // delete root;
   }
 
   Node<T> * root;
