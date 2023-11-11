@@ -94,7 +94,7 @@ struct Tree {
 
 
   ~ Tree(){
-    // delete root;
+    delete root;
   }
 
   Node<T> * root;
