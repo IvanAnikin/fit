@@ -57,10 +57,10 @@ struct Node{
     size_t size;
   
   ~ Node(){
-    if(left!=nullptr) delete left;
-    if(right!=nullptr) delete right;
-    left = nullptr;
-    right = nullptr;
+    // if(left!=nullptr) delete left;
+    // if(right!=nullptr) delete right;
+    // left = nullptr;
+    // right = nullptr;
   }
 };
 
@@ -367,9 +367,8 @@ bool Tree<T>::erase(const T& value) {
 
         n_point->left = nullptr;
         n_point->right = nullptr;
-        n_point->parent = nullptr;
 
-        // delete n_point;
+        delete n_point;
 
         bubble_up(n_parent, root); 
 
@@ -387,11 +386,10 @@ bool Tree<T>::erase(const T& value) {
         if (child != nullptr)
             child->parent = parent;
 
-        // node->left = nullptr;
-        // node->right = nullptr;
-        // node->parent = nullptr;
+        node->left = nullptr;
+        node->right = nullptr;
 
-        // delete node;
+        delete node;
 
         bubble_up(parent, root); 
 
