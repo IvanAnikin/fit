@@ -57,11 +57,10 @@ struct Node{
     size_t size;
   
   ~ Node(){
-    if(left!=nullptr) delete(left);
-    if(right!=nullptr) delete(right);
+    if(left!=nullptr) delete left;
+    if(right!=nullptr) delete right;
     left = nullptr;
     right = nullptr;
-    // delete this;
   }
 };
 
