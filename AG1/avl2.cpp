@@ -286,6 +286,7 @@ bool Tree<T>::insert(T value) {
 
   bubble_up(newNode->parent, root);
 
+  std::cout << "inserted " << value << "\n";
   return true;
     
 }
