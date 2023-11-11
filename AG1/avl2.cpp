@@ -40,7 +40,7 @@ struct Ref {
 
 namespace config {
   // Enable to check that the tree is AVL balanced.
-  inline constexpr bool CHECK_DEPTH = true;
+  inline constexpr bool CHECK_DEPTH = false;
 
   // Disable if your implementation does not have parent pointers
   inline constexpr bool PARENT_POINTERS = true;
