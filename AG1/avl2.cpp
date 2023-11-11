@@ -387,9 +387,9 @@ bool Tree<T>::erase(const T& value) {
         if (child != nullptr)
             child->parent = parent;
 
-        node->left = nullptr;
-        node->right = nullptr;
-        node->parent = nullptr;
+        // node->left = nullptr;
+        // node->right = nullptr;
+        // node->parent = nullptr;
 
         // delete node;
 
