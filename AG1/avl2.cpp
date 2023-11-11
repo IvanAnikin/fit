@@ -241,7 +241,7 @@ void bubble_up(Node<T> * node, Node<T> *& root){
 template <typename T>
 bool Tree<T>::insert(T value) {
 
-  Node<T> * newNode = new Node<T>;
+  Node<T> * newNode = new Node<T>();
   newNode->value = value;
   newNode->left = nullptr;
   newNode->right = nullptr;
