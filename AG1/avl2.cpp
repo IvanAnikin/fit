@@ -57,10 +57,9 @@ struct Node{
     size_t size;
   
   ~ Node(){
+    std::cout << "deleting node: " << value << "\n";
     delete left;
     delete right;
-    left = nullptr;
-    right = nullptr;
   }
 };
 
@@ -94,6 +93,7 @@ struct Tree {
 
 
   ~ Tree(){
+    std::cout << "deleting root\n";
     delete root;
   }
 
@@ -533,6 +533,7 @@ struct Tester {
 
 
 void test_insert() {
+
   Tester<int> t;
 
   for (int i = 0; i < 10; i++) t.insert(i, true);
@@ -541,9 +542,6 @@ void test_insert() {
   for (int i = 0; i < 10; i++) t.insert((1 + i * 7) % 17, true);
   for (int i = -10; i < 20; i++) t.find(i);
 
-
-
-  delete t;
 }
 
 void test_erase() {
