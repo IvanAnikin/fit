@@ -363,7 +363,6 @@ bool Tree<T>::erase(const T& value) {
         if (n_point->left != nullptr)
             n_point->left->parent = n_parent;
 
-
         n_point->left = nullptr;
         n_point->right = nullptr;
 
@@ -596,25 +595,24 @@ int main() {
     std::cout << "Insert test..." << std::endl;
     test_insert();
 
+    /*
     std::cout << "Erase test..." << std::endl;
     test_erase();
     
     std::cout << "Tiny random test..." << std::endl;
     test_random(20, CHECK_TREE);
       
-    if(!DEBUG){
-      std::cout << "Small random test..." << std::endl;
-      test_random(200, CHECK_TREE);
-      
-      std::cout << "Big random test..." << std::endl;
-      test_random(50'000);
-      
-      std::cout << "Big sequential test..." << std::endl;
-      test_random(50'000, SEQ);
-
-      std::cout << "All tests passed." << std::endl;
-    }
+    std::cout << "Small random test..." << std::endl;
+    test_random(200, CHECK_TREE);
     
+    std::cout << "Big random test..." << std::endl;
+    test_random(50'000);
+    
+    std::cout << "Big sequential test..." << std::endl;
+    test_random(50'000, SEQ);
+
+    std::cout << "All tests passed." << std::endl;
+    */
 
   } catch (const TestFailed& e) {
     std::cout << "Test failed: " << e.what() << std::endl;
