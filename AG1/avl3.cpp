@@ -60,7 +60,10 @@ struct Tree {
       T value;
       size_t size;
     
-    ~ Node() = default;
+    ~ Node(){
+      delete left;
+      delete right;
+    }
 
     Node() = default;
   };
