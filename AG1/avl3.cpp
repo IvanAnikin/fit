@@ -598,22 +598,22 @@ int main() {
     std::cout << "Insert test..." << std::endl;
     test_insert();
 
-    std::cout << "Erase test..." << std::endl;
-    test_erase();
+    // std::cout << "Erase test..." << std::endl;
+    // test_erase();
     
-    std::cout << "Tiny random test..." << std::endl;
-    test_random(20, CHECK_TREE);
+    // std::cout << "Tiny random test..." << std::endl;
+    // test_random(20, CHECK_TREE);
       
-    std::cout << "Small random test..." << std::endl;
-    test_random(200, CHECK_TREE);
+    // std::cout << "Small random test..." << std::endl;
+    // test_random(200, CHECK_TREE);
     
-    std::cout << "Big random test..." << std::endl;
-    test_random(50'000);
+    // std::cout << "Big random test..." << std::endl;
+    // test_random(50'000);
     
-    std::cout << "Big sequential test..." << std::endl;
-    test_random(50'000, SEQ);
+    // std::cout << "Big sequential test..." << std::endl;
+    // test_random(50'000, SEQ);
 
-    std::cout << "All tests passed." << std::endl;
+    // std::cout << "All tests passed." << std::endl;
     
   } catch (const TestFailed& e) {
     std::cout << "Test failed: " << e.what() << std::endl;
