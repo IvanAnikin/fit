@@ -540,6 +540,10 @@ void test_insert() {
 
   for (int i = 0; i < 10; i++) t.insert((1 + i * 7) % 17, true);
   for (int i = -10; i < 20; i++) t.find(i);
+
+
+
+  delete t;
 }
 
 void test_erase() {
@@ -594,6 +598,7 @@ int main() {
   try {
     std::cout << "Insert test..." << std::endl;
     test_insert();
+
 
     /*
     std::cout << "Erase test..." << std::endl;
