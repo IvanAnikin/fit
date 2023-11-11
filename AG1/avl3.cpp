@@ -60,11 +60,7 @@ struct Tree {
       T value;
       size_t size;
     
-    ~ Node(){
-      // std::cout << "~ Node: " << value << "\n";
-      delete left;
-      delete right;
-    }
+    ~ Node() = default;
 
     Node() = default;
   };
@@ -96,7 +92,6 @@ struct Tree {
 
 
   ~ Tree(){
-    // std::cout << "deleting root\n";
     delete root;
   }
 
@@ -231,6 +226,7 @@ struct Tree {
 
 template <typename T>
 size_t Tree<T>::size() const {
+
 
   return m_size;
 }
