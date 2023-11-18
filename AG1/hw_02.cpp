@@ -38,12 +38,12 @@ struct TextEditorBackend {
       size_t left_newlines;
       size_t right_newlines;
     
-    ~ Node(){
-      delete left;
-      left = nullptr;
-      delete right;
-      right = nullptr;
-    }
+    // ~ Node(){
+    //   delete left;
+    //   left = nullptr;
+    //   delete right;
+    //   right = nullptr;
+    // }
 
     Node() = default;
   };  
@@ -52,10 +52,10 @@ struct TextEditorBackend {
   Node * root;
   size_t m_size = 0;
 
-  ~ TextEditorBackend(){
-    delete root;
-    root = nullptr;
-  }
+  // ~ TextEditorBackend(){
+  //   delete root;
+  //   root = nullptr;
+  // }
 
   void show_recursive(Node * node, size_t index) const{
 
