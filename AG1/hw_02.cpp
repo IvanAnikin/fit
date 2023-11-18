@@ -40,7 +40,9 @@ struct TextEditorBackend {
     
     ~ Node(){
       delete left;
+      left = nullptr;
       delete right;
+      right = nullptr;
     }
 
     Node() = default;
@@ -52,6 +54,7 @@ struct TextEditorBackend {
 
   ~ TextEditorBackend(){
     delete root;
+    root = nullptr;
   }
 
   void show_recursive(Node * node, size_t index) const{
@@ -501,19 +504,21 @@ void TextEditorBackend::insert(size_t index, char value){
           newNode->parent = node;
           node->left = newNode;
 
-          Node * prev = node;
-          Node * n_node = node->parent;
-          while(n_node!=nullptr){
-            if(n_node->left == prev){
-              n_node->left_size ++;
-              if(value == '\n') n_node->left_newlines ++;
+          if(node->parent){
+            Node * prev = node;
+            Node * n_node = node->parent;
+            while(n_node!=nullptr){
+              if(n_node->left == prev){
+                n_node->left_size ++;
+                if(value == '\n') n_node->left_newlines ++;
+              }
+              else{
+                n_node->right_size ++;
+                if(value == '\n') n_node->right_newlines ++;
+              }
+              prev = n_node;
+              n_node = n_node->parent;
             }
-            else{
-              n_node->right_size ++;
-              if(value == '\n') n_node->right_newlines ++;
-            }
-            prev = n_node;
-            n_node = n_node->parent;
           }
 
           node->left_size ++;
@@ -529,21 +534,23 @@ void TextEditorBackend::insert(size_t index, char value){
           newNode->parent = node;
           node->right = newNode;
           
-          Node * prev = node;
-          Node * n_node = node->parent;
-          while(n_node!=nullptr){
-            if(n_node->left == prev){
-              n_node->left_size ++;
-              if(value == '\n') n_node->left_newlines ++;
+          if(node->parent){
+            Node * prev = node;
+            Node * n_node = node->parent;
+            while(n_node!=nullptr){
+              if(n_node->left == prev){
+                n_node->left_size ++;
+                if(value == '\n') n_node->left_newlines ++;
+              }
+              else{
+                n_node->right_size ++;
+                if(value == '\n') n_node->right_newlines ++;
+              }
+              prev = n_node;
+              n_node = n_node->parent;
             }
-            else{
-              n_node->right_size ++;
-              if(value == '\n') n_node->right_newlines ++;
-            }
-            prev = n_node;
-            n_node = n_node->parent;
           }
-          
+            
           node->right_size ++;
           if(value == '\n') node->right_newlines ++;
           m_size ++;
@@ -557,19 +564,21 @@ void TextEditorBackend::insert(size_t index, char value){
           newNode->parent = n_point;
           n_point->right = newNode;
 
-          Node * prev = n_point;
-          Node * n_node = n_point->parent;
-          while(n_node!=nullptr){
-            if(n_node->left == prev){
-              n_node->left_size ++;
-              if(value == '\n') n_node->left_newlines ++;
+          if(n_point->parent){
+            Node * prev = n_point;
+            Node * n_node = n_point->parent;
+            while(n_node!=nullptr){
+              if(n_node->left == prev){
+                n_node->left_size ++;
+                if(value == '\n') n_node->left_newlines ++;
+              }
+              else{
+                n_node->right_size ++;
+                if(value == '\n') n_node->right_newlines ++;
+              }
+              prev = n_node;
+              n_node = n_node->parent;
             }
-            else{
-              n_node->right_size ++;
-              if(value == '\n') n_node->right_newlines ++;
-            }
-            prev = n_node;
-            n_node = n_node->parent;
           }
 
           n_point->right_size ++;
@@ -579,19 +588,21 @@ void TextEditorBackend::insert(size_t index, char value){
           newNode->parent = node;
           node->left = newNode;
 
-          Node * prev = node;
-          Node * n_node = node->parent;
-          while(n_node!=nullptr){
-            if(n_node->left == prev){
-              n_node->left_size ++;
-              if(value == '\n') n_node->left_newlines ++;
+          if(node->parent != nullptr){
+            Node * prev = node;
+            Node * n_node = node->parent;
+            while(n_node!=nullptr){
+              if(n_node->left == prev){
+                n_node->left_size ++;
+                if(value == '\n') n_node->left_newlines ++;
+              }
+              else{
+                n_node->right_size ++;
+                if(value == '\n') n_node->right_newlines ++;
+              }
+              prev = n_node;
+              n_node = n_node->parent;
             }
-            else{
-              n_node->right_size ++;
-              if(value == '\n') n_node->right_newlines ++;
-            }
-            prev = n_node;
-            n_node = n_node->parent;
           }
 
           node->left_size ++;
@@ -643,6 +654,7 @@ void TextEditorBackend::erase(size_t index){
       }
     }else{
       if( node->left != nullptr && node->right != nullptr ){ 
+
         Node* n_point = node->left;
         Node* n_parent = node;
         bool n_left = true;
@@ -652,21 +664,40 @@ void TextEditorBackend::erase(size_t index){
           n_left = false;
         }
 
+        if(node->value == '\n'){
+
+          Node * n_prev = node;
+          Node * nn_node = parent;
+          // Node * n_prev = n_point;
+          // Node * nn_node = n_parent;
+
+          while(nn_node!=nullptr){
+            
+            if(nn_node->left == n_prev) nn_node->left_newlines --;
+            else nn_node->right_newlines --;
+            
+            n_prev = nn_node;
+            nn_node = nn_node->parent;
+          }
+        }
+
         node->value = n_point->value;
 
         if (n_point->left != nullptr) n_point->left->parent = n_parent;
 
         Node * prev = n_point;
         Node * n_node = n_parent;
+        bool ignore = false;
         while(n_node!=nullptr){
           if(n_node->left == prev){
             n_node->left_size--;
-            if(n_point->value == '\n') n_node->left_newlines --;
+            if(n_point->value == '\n' && !ignore) n_node->left_newlines --;
           }
           else{
             n_node->right_size --;
-            if(n_point->value == '\n') n_node->right_newlines --;
+            if(n_point->value == '\n' && !ignore) n_node->right_newlines --;
           } 
+          if(n_node == node) ignore = true;
           prev = n_node;
           n_node = n_node->parent;
         }
@@ -683,7 +714,7 @@ void TextEditorBackend::erase(size_t index){
 
       }
       else{  
-        Node* child = (node->left != nullptr) ? node->left : node->right;
+        Node * child = (node->left != nullptr) ? node->left : node->right;
 
         Node * prev = node;
         Node * n_node = parent;
@@ -763,12 +794,12 @@ size_t TextEditorBackend::line_start(size_t r)const{
         throw std::out_of_range("line_start 2");
       }
 
+
       Node * n_point = node->left;
       node_index = node_index - 1 - n_point->right_size;
       
       while (n_point->left != nullptr || n_point->right != nullptr){
         if(r > n_point->left_newlines + newlines_count){
-        // if(n_point->value == '\n'){
           if(n_point->value=='\n') newlines_count = newlines_count + 1 + n_point->left_newlines;
           n_point = n_point->right;     
           node_index = node_index + 1 + n_point->left_size;   
@@ -792,114 +823,6 @@ size_t TextEditorBackend::line_length(size_t r)const{
   if(r == lines() - 1) return size() - line_start(r);
   return line_start(r+1) - line_start(r);
 }
-
-/*
-TextEditorBackend::Node * TextEditorBackend::line_start_node(size_t r)const{
-
-  if(r < 0 || r >= lines()) throw std::out_of_range("line_start 1");
-
-  Node * node = root;
-  size_t node_index = node->left_size;
-  size_t newlines_count = 0;
-  while(node!=nullptr){
-
-    std::cout << r << "><" << newlines_count + node->left_newlines << " \n";
-    if(r < newlines_count + node->left_newlines){
-      if(node->left != nullptr){
-        node = node->left;
-        node_index = node_index - 1 - node->right_size;
-
-        std::cout << newlines_count << " [ " << node_index << " ] \n";
-      }else{
-        std::cout << "b1\n";
-        break;
-      }
-    }else if(r > newlines_count + node->left_newlines){
-      if(node->right != nullptr){
-        
-        if(node->value=='\n') newlines_count = newlines_count + 1 + node->left_newlines;
-        
-        node = node->right;     
-        node_index = node_index + 1 + node->left_size;   
-        
-        std::cout << newlines_count << " { " << node_index << " } \n";
-
-      }else{
-        std::cout << r << " " << node_index << " b2\n";
-        if(node->value == '\n'){
-          return nullptr;
-        }
-        break;
-      }
-    }else {
-      if(node->left == nullptr){
-        throw std::out_of_range("line_start 2");
-      }
-      Node * n_point = node->left;
-      node_index = node_index - 1 - n_point->right_size;
-      
-      while (n_point->left != nullptr){
-        if(n_point->value == '\n'){
-          n_point = n_point->right;     
-          node_index = node_index + 1 + n_point->left_size;   
-        }else{
-          n_point = n_point->left;
-          node_index = node_index - 1 - n_point->right_size;
-        }
-      }
-      return n_point;
-    }
-  }
-  throw std::out_of_range("line_start 3");
-
-}
-
-size_t TextEditorBackend::line_length(size_t r)const{
-
-  Node * start = line_start_node(r);
-  
-  if(start != nullptr){
-    std::cout << "start: " << start->value << "\n";
-    size_t count = 0;
-
-    while(start->parent != nullptr){
-      
-      // if(start->parent->left != start || start->parent->value == '\n'){
-      //   if(start->parent->value == '\n') count ++;
-      //   break;
-      // }
-      // start = start->parent;
-      
-      
-      if(start->parent->left == start){
-        if(start->parent->value == '\n'){
-          count ++;
-          break;
-        }
-        start = start->parent;
-      }else{
-        break;
-      }
-
-      // if(start->parent->left != start || start->parent->value == '\n') break;
-      // start = start->parent;
-    }
-    
-    count += start->left_size + 1;
-    
-    Node * n_start = start;
-    while(n_start->right != nullptr && n_start->right->value != '\n'){
-      n_start = n_start->right;
-      count += n_start->left_size;
-    }
-    // if(r != lines() - 1) count ++;
-    return count;
-
-  }else{
-    return 0;
-  }
-
-}*/
 
 size_t TextEditorBackend::char_to_line(size_t i)const{
   
@@ -1078,7 +1001,75 @@ void test_ex(int& ok, int& fail) {
 }
 
 int main() {
+
   int ok = 0, fail = 0;
+
+  // TextEditorBackend t("\n\n\n\n\n\n");
+  // CHECK(t.size(), 6);
+	// CHECK(t.lines(), 7);
+
+  // t.show();
+  // t.insert(1, 'a');
+  // t.insert(3, 'b');
+  // t.insert(5, 'c');
+  // t.show();
+  // std::cout << "inserted\n\n\n\n";
+
+  // t.erase(0); 
+  // t.erase(2);
+  // t.erase(4);
+  // t.show();
+  // std::cout << "erased\n\n\n\n";
+
+	// CHECK(t.lines(), 5);
+
+  // t.edit(t.size() - 1, 'd');
+  // t.show();
+  // t.insert(t.size(), 'f');
+  // t.show();
+  // t.edit(t.size() - 1, '\n');
+  // t.show();
+  // std::cout << "edited\n\n\n\n";
+
+	// CHECK(t.lines(), 5);
+
+  // t.erase(2); 
+  // t.erase(1);
+  // t.erase(2);
+  // t.show();
+  // std::cout << "erased\n\n\n\n";
+
+	// CHECK(t.lines(), 2);
+
+  // TextEditorBackend t2("\n\n\n\n\n\n\n\n\na");
+	
+  // t2.show();
+  // t2.edit(t2.size()-1, '\n');
+  // t2.edit(0, 'a');
+  // t2.erase(3);
+  // t2.erase(0);
+  // t2.edit(t2.size()-1, 'b');
+  // t2.erase(7);
+  // t2.edit(2, 'c');
+  // t2.erase(5);
+  // t2.edit(2, '\n');
+  // t2.edit(3, 'd');
+  // t2.erase(1);
+  // t2.edit(t2.size()-1, 'e');
+  // t2.show();
+  // std::cout << text(t2);
+
+
+  // t2.erase(4);
+  // t2.edit(6, 'a');
+  // t2.erase(5);
+  // t2.edit(2, 'b');
+  // t2.erase(3);
+  // t2.edit(0, 'c');
+  // t2.erase(0);
+  // t2.show();
+	//CHECK(t2.lines(), 5);
+
   if (!fail) test1(ok, fail);
   if (!fail) test2(ok, fail);
   if (!fail) test3(ok, fail);
