@@ -38,12 +38,12 @@ struct TextEditorBackend {
       size_t left_newlines;
       size_t right_newlines;
     
-    // ~ Node(){
-    //   delete left;
-    //   left = nullptr;
-    //   delete right;
-    //   right = nullptr;
-    // }
+    ~ Node(){
+      delete left;
+      left = nullptr;
+      delete right;
+      right = nullptr;
+    }
 
     Node() = default;
   };  
@@ -52,10 +52,10 @@ struct TextEditorBackend {
   Node * root;
   size_t m_size = 0;
 
-  // ~ TextEditorBackend(){
-  //   delete root;
-  //   root = nullptr;
-  // }
+  ~ TextEditorBackend(){
+    delete root;
+    root = nullptr;
+  }
 
   void show_recursive(Node * node, size_t index) const{
 
@@ -72,7 +72,9 @@ struct TextEditorBackend {
 
   void show() const{
     std::cout << "\n---\t---\t---\n";
-    show_recursive(root, root->left_size);
+    if(root == nullptr) std::cout << "text empty\n";
+    else show_recursive(root, root->left_size);
+    std::cout << "\n---\t---\t---\n";
   }
 
   void rotate_left(Node *& root, Node * node){ 
@@ -370,15 +372,16 @@ size_t TextEditorBackend::size() const{
 
 size_t TextEditorBackend::lines() const{
 
-  if(root == nullptr) return 0;
+  if(root == nullptr) return 1;
   size_t c = 0;
-  if(root->value == '\n') c++;
+  if(root->value == '\n') c ++;
+  std::cout << "c: " << c << "\n";
   return root->left_newlines + root->right_newlines + c + 1; 
 }
 
 char TextEditorBackend::at(size_t i) const{
 
-  if(i < 0 || i >= m_size) throw std::out_of_range("out_of_range");
+  if(i < 0 || i >= m_size) throw std::out_of_range("at");
 
   Node * node = root;
   size_t node_index = node->left_size;
@@ -401,13 +404,13 @@ char TextEditorBackend::at(size_t i) const{
     }else return node->value;
     
   }
-  throw std::out_of_range("out_of_range");
+  throw std::out_of_range("at 2");
 
 }
 
 void TextEditorBackend::edit(size_t i, char c){
 
-  if(i < 0 || i >= m_size) throw std::out_of_range("out_of_range");
+  if(i < 0 || i >= m_size) throw std::out_of_range("edit");
 
   Node * node = root;
   size_t node_index = node->left_size;
@@ -429,7 +432,7 @@ void TextEditorBackend::edit(size_t i, char c){
       }
     }else{
 
-      if(node->value == '\n' && node->parent){
+      if(node->value == '\n' && c!='\n' && node->parent){
 
         Node * prev = node;
         Node * n_node = node->parent;
@@ -444,9 +447,7 @@ void TextEditorBackend::edit(size_t i, char c){
         }
       }
 
-      node->value = c; 
-
-      if(node->value == '\n' && node->parent){
+      if(c=='\n' && node->value != '\n' && node->parent){
         
         Node * prev = node;
         Node * n_node = node->parent;
@@ -461,17 +462,19 @@ void TextEditorBackend::edit(size_t i, char c){
         }
       }
 
+      node->value = c; 
+
       return;
     }
     
   }
-  throw std::out_of_range("out_of_range");
+  throw std::out_of_range("edit 2");
 
 }
 
 void TextEditorBackend::insert(size_t index, char value){
 
-  if(index < 0 || index > m_size) throw std::out_of_range("out_of_range");
+  if(index < 0 || index > m_size) throw std::out_of_range("insert");
 
   Node * newNode = new Node();
   newNode->value = value;
@@ -541,10 +544,12 @@ void TextEditorBackend::insert(size_t index, char value){
               if(n_node->left == prev){
                 n_node->left_size ++;
                 if(value == '\n') n_node->left_newlines ++;
+                // std::cout << " left ++ for '" << n_node->value << "'\n";
               }
               else{
                 n_node->right_size ++;
                 if(value == '\n') n_node->right_newlines ++;
+                // std::cout << " right ++ for '" << n_node->value << "'\n";
               }
               prev = n_node;
               n_node = n_node->parent;
@@ -571,10 +576,12 @@ void TextEditorBackend::insert(size_t index, char value){
               if(n_node->left == prev){
                 n_node->left_size ++;
                 if(value == '\n') n_node->left_newlines ++;
+                // std::cout << " left ++ for '" << n_node->value << "'\n";
               }
               else{
                 n_node->right_size ++;
                 if(value == '\n') n_node->right_newlines ++;
+                // std::cout << " right ++ for '" << n_node->value << "'\n";
               }
               prev = n_node;
               n_node = n_node->parent;
@@ -582,7 +589,8 @@ void TextEditorBackend::insert(size_t index, char value){
           }
 
           n_point->right_size ++;
-          if(value == '\n') node->right_newlines ++;
+          if(value == '\n') n_point->right_newlines ++;
+          // std::cout << " right ++ for '" << n_point->value << "'\n";
 
         }else{
           newNode->parent = node;
@@ -668,8 +676,6 @@ void TextEditorBackend::erase(size_t index){
 
           Node * n_prev = node;
           Node * nn_node = parent;
-          // Node * n_prev = n_point;
-          // Node * nn_node = n_parent;
 
           while(nn_node!=nullptr){
             
@@ -741,11 +747,12 @@ void TextEditorBackend::erase(size_t index){
         if (child != nullptr)
             child->parent = parent;
 
+
         node->left = nullptr;
         node->right = nullptr;
 
         delete node;
-        bubble_up(parent, root); 
+        if(parent!=nullptr){ bubble_up(parent, root); }
       }
 
       m_size --;
@@ -760,12 +767,16 @@ size_t TextEditorBackend::line_start(size_t r)const{
 
   if(r < 0 || r >= lines()) throw std::out_of_range("line_start 1");
 
+  if(root == nullptr) return 0;
+
   Node * node = root;
   size_t node_index = node->left_size;
   size_t newlines_count = 0;
   while(node!=nullptr){
-
+    // std::cout << "node [" << node_index << "]: " << node->value << '\n';
+    // std::cout << "left newlines: " <<  node->left_newlines  << " r: " << r << " newlines count: " << newlines_count << '\n';
     if(r < newlines_count + node->left_newlines){
+      
       if(node->left != nullptr){
         node = node->left;
         node_index = node_index - 1 - node->right_size;
@@ -778,7 +789,8 @@ size_t TextEditorBackend::line_start(size_t r)const{
     }else if(r > newlines_count + node->left_newlines){
       if(node->right != nullptr){
         
-        if(node->value=='\n') newlines_count = newlines_count + 1 + node->left_newlines;
+        if(node->value=='\n') newlines_count = newlines_count + 1;
+        newlines_count += node->left_newlines;
         
         node = node->right;     
         node_index = node_index + 1 + node->left_size;
@@ -790,26 +802,31 @@ size_t TextEditorBackend::line_start(size_t r)const{
       }
     }else {
       if(node->left == nullptr){
-        if(node->value == '\n') return node_index;
-        throw std::out_of_range("line_start 2");
+        return node_index;
+        // if(node->value == '\n') return node_index;
+        // throw std::out_of_range("line_start 2");
+
       }
 
-
       Node * n_point = node->left;
-      node_index = node_index - 1 - n_point->right_size;
+      size_t n_node_index = node_index - 1 - n_point->right_size;
       
       while (n_point->left != nullptr || n_point->right != nullptr){
         if(r > n_point->left_newlines + newlines_count){
-          if(n_point->value=='\n') newlines_count = newlines_count + 1 + n_point->left_newlines;
+          
+          if(n_point->right == nullptr) return node_index;
+          
+          if(n_point->value=='\n') newlines_count ++;
+          newlines_count += n_point->left_newlines;
           n_point = n_point->right;     
-          node_index = node_index + 1 + n_point->left_size;   
+          n_node_index = n_node_index + 1 + n_point->left_size;   
         }else{
           n_point = n_point->left;
-          node_index = node_index - 1 - n_point->right_size;
+          n_node_index = n_node_index - 1 - n_point->right_size;
         }
       }
-      if(n_point->value == '\n') return node_index+1;
-      return node_index;
+      if(n_point->value == '\n') return n_node_index+1;
+      return n_node_index;
     }
   }
   throw std::out_of_range("line_start 3");
@@ -818,9 +835,10 @@ size_t TextEditorBackend::line_start(size_t r)const{
 
 size_t TextEditorBackend::line_length(size_t r)const{
 
-  if(r < 0 || r >= lines()) throw std::out_of_range("out_of_range");
+  size_t linescount = lines();
+  if(r < 0 || r >= linescount) throw std::out_of_range("length");
 
-  if(r == lines() - 1) return size() - line_start(r);
+  if(r == linescount - 1) return size() - line_start(r);
   return line_start(r+1) - line_start(r);
 }
 
@@ -1000,81 +1018,289 @@ void test_ex(int& ok, int& fail) {
   CHECK_EX(t.char_to_line(25), std::out_of_range);
 }
 
+void test4(int& ok, int& fail) {
+    TextEditorBackend s("Hello, World!");
+    CHECK(s.size(), 13);
+    CHECK(text(s), "Hello, World!");
+    CHECK(s.lines(), 1);
+    CHECK_ALL(s.char_to_line, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    CHECK_ALL(s.line_start, 0);
+    CHECK_ALL(s.line_length, 13);
+
+    // s.show();
+    s.insert(7, '\n');
+    // s.show();
+    CHECK(s.size(), 14);
+    CHECK(text(s), "Hello, \nWorld!");
+    CHECK(s.lines(), 2);
+    CHECK_ALL(s.line_start, 0, 8);
+
+    s.insert(2, '\n');
+    CHECK(s.size(), 15);
+    CHECK(text(s), "He\nllo, \nWorld!");
+    CHECK(s.lines(), 3);
+    CHECK_ALL(s.line_start, 0, 3, 9);
+
+    s.edit(3, 'X');
+    CHECK(s.size(), 15);
+    CHECK(text(s), "He\nXlo, \nWorld!");
+    CHECK(s.lines(), 3);
+    CHECK_ALL(s.line_start, 0, 3, 9);
+
+    s.erase(7);
+    CHECK(s.size(), 14);
+    CHECK(text(s), "He\nXlo,\nWorld!");
+    CHECK(s.lines(), 3);
+    CHECK_ALL(s.line_start, 0, 3, 8);
+
+    s.erase(5);
+    CHECK(s.size(), 13);
+    CHECK(text(s), "He\nXl,\nWorld!");
+    CHECK(s.lines(), 3);
+    CHECK_ALL(s.line_start, 0, 3, 7);
+    // s.show();
+}
+
+void test5(int& ok, int& fail) {
+	
+  TextEditorBackend t(" ");
+  CHECK(t.size(), 1);
+  CHECK(t.lines(), 1);
+  CHECK(t.line_start(0), 0);
+
+  TextEditorBackend t2("");
+  CHECK(t2.size(), 0);
+  CHECK(t2.lines(), 1);
+  CHECK(t2.line_start(0), 0);
+  CHECK(t2.line_length(0), 0);
+
+}
+
+void test6(int& ok, int& fail){
+
+  TextEditorBackend t("\n\n\n\n\n\n");
+  CHECK(t.size(), 6);
+	CHECK(t.lines(), 7);
+  // t.show();
+  t.insert(1, 'a');
+  t.insert(3, 'b');
+  t.insert(5, 'c');
+  // t.show();
+  // std::cout << "inserted\n\n\n\n";
+  t.erase(0); 
+  t.erase(2);
+  t.erase(4);
+  // t.show();
+  // std::cout << "erased\n\n\n\n";
+	CHECK(t.lines(), 5);
+  t.edit(t.size() - 1, 'd');
+  // t.show();
+  t.insert(t.size(), 'f');
+  // t.show();
+  t.edit(t.size() - 1, '\n');
+  // t.show();
+  // std::cout << "edited\n\n\n\n";
+	CHECK(t.lines(), 5);
+  t.erase(2); 
+  t.erase(1);
+  t.erase(2);
+  // t.show();
+  //std::cout << "erased\n\n\n\n";
+	CHECK(t.lines(), 2);
+}
+
+void test7(int& ok, int& fail){
+
+  TextEditorBackend t("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+    CHECK(t.size(), 20);
+    CHECK(t.lines(), 21);
+    int i = 1;
+    while(t.size() > 0){
+      t.erase(0);
+      CHECK(t.size(), 20-i);
+      CHECK(t.lines(), 21-i);
+      i++;
+    }
+}
+
+void test8(int& ok, int& fail){
+
+  TextEditorBackend t("\n\n\n\n\n");
+  CHECK(t.size(), 5);
+  CHECK(t.lines(), 6);
+  //t.show();
+  t.erase(1);
+  CHECK(t.size(), 4);
+  CHECK(t.lines(), 5);
+  //t.show();
+  t.erase(1);
+  CHECK(t.size(), 3);
+  CHECK(t.lines(), 4);
+  //t.show();
+}
+
+void test9(int& ok, int& fail){
+
+  TextEditorBackend t("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+
+  for(int i=0; i<t.size(); i++){
+    CHECK(t.line_length(i), 1);
+  }
+  CHECK(t.line_length(t.size()), 0);
+}
+
+void test10(int& ok, int& fail){
+
+  TextEditorBackend t("");
+  // std::cout << t.size() << " t.size()\n";
+  CHECK(t.size(), 0);
+  // std::cout << t.lines() << " t.lines()\n";
+  CHECK(t.lines(), 1);
+  // std::cout << t.line_start(0) << " t.line_start(0)\n";
+  CHECK(t.line_start(0), 0);
+}
+
+void test11(int& ok, int& fail){
+
+  TextEditorBackend t("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+  t.erase(7);
+  for(int i=0; i<t.size(); i++){
+    CHECK(t.line_length(i), 1);
+  }
+}
+
+void test12(int& ok, int& fail){
+
+  TextEditorBackend t("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+  CHECK(t.lines(), 21);
+  CHECK(t.size(), 20);
+  for(int i=0; i<t.size(); i++){
+    CHECK(t.line_length(i), 1);
+  }
+  CHECK(t.line_length(t.size()), 0);
+  CHECK_EX(t.line_length(t.size()+1), std::out_of_range);
+
+  t.erase(7);
+  CHECK(t.lines(), 20);
+  CHECK(t.size(), 19);
+  for(int i=0; i<t.size(); i++){
+    CHECK(t.line_length(i), 1);
+  }
+  CHECK(t.line_length(t.size()), 0);
+  CHECK_EX(t.line_length(t.size()+1), std::out_of_range);
+
+  t.erase(10);
+  CHECK(t.lines(), 19);
+  CHECK(t.size(), 18);
+  for(int i=0; i<t.size(); i++){
+    CHECK(t.line_length(i), 1);
+  }
+  CHECK(t.line_length(t.size()), 0);
+  CHECK_EX(t.line_length(t.size()+1), std::out_of_range);
+
+  t.erase(11);
+  t.erase(14);
+  t.erase(1);
+  while(t.size() > 5) t.erase(t.size()-1);
+  for(int i=0; i<t.size(); i++){
+    CHECK(t.line_length(i), 1);
+  }
+  CHECK(t.line_length(t.size()), 0);
+  CHECK_EX(t.line_length(t.size()+1), std::out_of_range);
+}
+
+void test13(int& ok, int& fail){
+
+
+  TextEditorBackend t("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+  CHECK(t.lines(), 21);
+  CHECK(t.size(), 20);
+
+  t.edit(t.size()-1, 'a');
+  CHECK(t.lines(), 20);
+  CHECK(t.size(), 20);
+  t.edit(0, 'a');
+  CHECK(t.lines(), 19);
+  CHECK(t.size(), 20);
+  t.erase(3);
+  CHECK(t.lines(), 18);
+  CHECK(t.size(), 19);
+  CHECK(t.line_length(0), 2);
+  for(int i=1; i<18; i++){
+    CHECK(t.line_length(i), 1);
+  }
+  CHECK_EX(t.line_length(t.lines()), std::out_of_range);
+  CHECK_EX(t.line_length(t.size()), std::out_of_range);
+  
+  for(int i=1; i<18; i++){
+    t.edit(i, 's');
+    CHECK(t.lines(), 18-i);
+  }
+  CHECK(t.size(), 19);
+  CHECK(t.line_length(0), 19);
+  CHECK_EX(t.line_length(1), std::out_of_range);
+}
+
 int main() {
 
   int ok = 0, fail = 0;
-
-  // TextEditorBackend t("\n\n\n\n\n\n");
-  // CHECK(t.size(), 6);
-	// CHECK(t.lines(), 7);
-
-  // t.show();
-  // t.insert(1, 'a');
-  // t.insert(3, 'b');
-  // t.insert(5, 'c');
-  // t.show();
-  // std::cout << "inserted\n\n\n\n";
-
-  // t.erase(0); 
-  // t.erase(2);
-  // t.erase(4);
-  // t.show();
-  // std::cout << "erased\n\n\n\n";
-
-	// CHECK(t.lines(), 5);
-
-  // t.edit(t.size() - 1, 'd');
-  // t.show();
-  // t.insert(t.size(), 'f');
-  // t.show();
-  // t.edit(t.size() - 1, '\n');
-  // t.show();
-  // std::cout << "edited\n\n\n\n";
-
-	// CHECK(t.lines(), 5);
-
-  // t.erase(2); 
-  // t.erase(1);
-  // t.erase(2);
-  // t.show();
-  // std::cout << "erased\n\n\n\n";
-
-	// CHECK(t.lines(), 2);
-
-  // TextEditorBackend t2("\n\n\n\n\n\n\n\n\na");
-	
-  // t2.show();
-  // t2.edit(t2.size()-1, '\n');
-  // t2.edit(0, 'a');
-  // t2.erase(3);
-  // t2.erase(0);
-  // t2.edit(t2.size()-1, 'b');
-  // t2.erase(7);
-  // t2.edit(2, 'c');
-  // t2.erase(5);
-  // t2.edit(2, '\n');
-  // t2.edit(3, 'd');
-  // t2.erase(1);
-  // t2.edit(t2.size()-1, 'e');
-  // t2.show();
-  // std::cout << text(t2);
-
-
-  // t2.erase(4);
-  // t2.edit(6, 'a');
-  // t2.erase(5);
-  // t2.edit(2, 'b');
-  // t2.erase(3);
-  // t2.edit(0, 'c');
-  // t2.erase(0);
-  // t2.show();
-	//CHECK(t2.lines(), 5);
 
   if (!fail) test1(ok, fail);
   if (!fail) test2(ok, fail);
   if (!fail) test3(ok, fail);
   if (!fail) test_ex(ok, fail);
-  
+
+  if (!fail) test4(ok, fail);
+  if (!fail) test5(ok, fail);
+  if (!fail) test6(ok, fail);
+  if (!fail) test7(ok, fail);
+  if (!fail) test8(ok, fail);
+  if (!fail) test9(ok, fail);
+  if (!fail) test10(ok, fail);
+  if (!fail) test11(ok, fail);
+  if (!fail) test12(ok, fail);
+  if (!fail) test13(ok, fail);
+
+
+  TextEditorBackend t("abc\n\n\nefg\nhij\nklm\n\n");
+
+
+  // TextEditorBackend t("abc\n\n\nefg\nhij\nklm\n\n");
+  // t.show();
+  // CHECK(t.lines(), 8);
+  // std::string thetext = text(t);
+  // for(int i=0; i<t.size(); i++){
+  //   std::cout << "'" << t.at(i) << "' (" << i << "): " << t.char_to_line(i) << "\n";
+  //   CHECK(t.at(i), thetext[i]);
+  // }
+  // for(int i=0; i<t.lines()-1; i++){
+  //   std::cout << "line " << i << " start: " << t.line_start(i) << " '" << t.at(t.line_start(i)) << "' length: " << t.line_length(i) << "\n";
+  // }
+
+
+  // TextEditorBackend t("\n\nabc\n\n\nefg\nhij\nklm\n\n");
+  // t.show();
+  // while(t.size() > 0){
+  //   t.edit(t.size()-1, '\n');
+  //   t.erase(0);
+  //   t.show();
+  //   for(int i=0; i<t.lines()-1; i++){
+  //     std::cout << "line " << i << " length " << t.line_length(i) << " starts with " << t.line_start(i) << ": '" << t.at(t.line_start(i)) << "'\n";
+  //   }
+  // }
+
+
+  TextEditorBackend t2("");
+  CHECK(t2.size(), 0);
+  CHECK(t2.lines(), 1);
+  CHECK(t2.line_start(0), 0);
+  CHECK(t2.line_length(0), 0);
+
+  t2.insert(0, '\n');
+  t2.show();
+  CHECK(t.lines(), 2);
+
+
   if (!fail) std::cout << "Passed all " << ok << " tests!" << std::endl;
   else std::cout << "Failed " << fail << " of " << (ok + fail) << " tests." << std::endl;
 }
