@@ -70,6 +70,11 @@
         "deque": "cpp",
         "__memory": "cpp",
         "chrono": "cpp",
-        "format": "cpp"
+        "format": "cpp",
+        "list": "cpp",
+        "queue": "cpp",
+        "stack": "cpp",
+        "unordered_set": "cpp",
+        "map": "cpp"
     }
 }
